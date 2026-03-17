@@ -33,7 +33,7 @@ func main() {
 		cfg.Test.Concurrency = *concurrency
 	}
 	if *duration > 0 {
-		cfg.Test.Duration = *duration
+		cfg.Test.Duration = config.Duration(*duration)
 	}
 
 	// 初始化模型

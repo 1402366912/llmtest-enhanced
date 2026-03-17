@@ -2,10 +2,10 @@ package model
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/lemonlinger/llm-test/config"
@@ -49,13 +49,18 @@ func NewAnthropicModel(cfg config.ModelConfig, proxies []config.ProxyConfig) (*A
 		}
 	}
 
-	return &AnthropicModel{
+	m := &AnthropicModel{
 		BaseModel: BaseModel{
 			config: cfg,
 		},
 		defaultClient: defaultClient,
 		proxyClients:  proxyClients,
-	}, nil
+	}
+	
+	// 加载tokenizer
+	m.LoadTokenizer()
+	
+	return m, nil
 }
 
 // GenerateResponse 生成响应
@@ -83,36 +88,45 @@ func (m *AnthropicModel) GenerateResponse(ctx context.Context, systemMessage, us
 	// 作为示例，我们只是模拟一个延迟并返回一个固定的响应
 
 	// 计算输入token
-	inputTokens, err := m.CountTokens(systemMessage + userMessage)
-	if err != nil {
-		return nil, err
-	}
+	inputTokens := m.CountTokens(systemMessage + userMessage)
 
+	// 记录开始时间用于计算首token延迟
+	startTime := time.Now()
+	
 	// 模拟API延迟
+	var firstTokenLatency time.Duration
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	case <-time.After(time.Duration(250+inputTokens/8) * time.Millisecond):
+		// 模拟首token延迟（仅在流式模式下有意义）
+		if stream {
+			firstTokenLatency = time.Since(startTime)
+		}
+		// 非流式模式不设置首token延迟，保持默认值0
+		
 		// 模拟响应
 		response := "这是来自Anthropic模型的示例响应。"
 
 		// 计算输出token
-		outputTokens, err := m.CountTokens(response)
-		if err != nil {
-			return nil, err
-		}
+		outputTokens := m.CountTokens(response)
 
 		return &LLMResponse{
-			Content:      response,
-			InputTokens:  inputTokens,
-			OutputTokens: outputTokens,
+			Content:         response,
+			InputTokens:     inputTokens,
+			OutputTokens:    outputTokens,
+			TimeToFirstToken: firstTokenLatency,
 		}, nil
 	}
 }
 
-// CountTokens 计算文本的token数量
-func (m *AnthropicModel) CountTokens(text string) (int, error) {
-	// 简单估算，实际应使用Claude的tokenizer
-	words := strings.Fields(text)
-	return len(words) + len(text)/4, nil
+
+// GenerateVisionResponse Anthropic模型的多模态实现（暂时不支持）
+func (m *AnthropicModel) GenerateVisionResponse(ctx context.Context, systemMessage, userMessage, imagePath string, stream bool) (*LLMResponse, error) {
+	return nil, fmt.Errorf("Anthropic模型暂时不支持多模态功能")
+}
+
+// SupportsVision Anthropic模型暂时不支持多模态
+func (m *AnthropicModel) SupportsVision() bool {
+	return false
 }

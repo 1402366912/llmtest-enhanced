@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd D:/1cat-llmtest && go version)",
+      "Bash(cd D:/1cat-llmtest/web && npm run build)",
+      "Bash(cd D:/1cat-llmtest && go build -o llm-test-server.exe ./cmd/server)",
+      "Bash(cd D:/1cat-llmtest && ./llm-test-server.exe -h)",
+      "Bash(cd D:/1cat-llmtest && timeout 10 ./llm-test-server.exe -p 8080 || true)",
+      "Bash(cd D:/1cat-llmtest && go build -o llm-test.exe main.go)"
+    ]
+  }
+}

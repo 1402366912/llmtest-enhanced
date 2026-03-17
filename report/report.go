@@ -73,7 +73,7 @@ func (r *Reporter) generateTextReport(results map[string]*engine.TestResult) (st
 
 	// 生成单个合并表格（标准Markdown格式）
 	// 表头
-	sb.WriteString("| 模型 | 并发度 | 成功/总请求 | 成功率 | 平均延迟 | 平均输入Token | 平均输出Token | 平均总Token | RPS | TPS")
+	sb.WriteString("| 模型 | 并发度 | 上下文目标Token | 成功/总请求 | 成功率 | 平均延迟 | 平均首Token延迟 | 平均输入Token | 平均输出Token | 平均总Token | RPS | TPS | Prefill TPS | Decode TPS")
 
 	// 添加百分位列
 	for _, p := range allPercentiles {
@@ -82,7 +82,7 @@ func (r *Reporter) generateTextReport(results map[string]*engine.TestResult) (st
 	sb.WriteString(" |\n")
 
 	// 分隔线
-	sb.WriteString("| --- | --- | --- | --- | --- | --- | --- | --- | --- | ---")
+	sb.WriteString("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---")
 	for range allPercentiles {
 		sb.WriteString(" | ---")
 	}
@@ -104,17 +104,27 @@ func (r *Reporter) generateTextReport(results map[string]*engine.TestResult) (st
 			successRate = float64(result.SuccessRequests) / float64(result.TotalRequests) * 100
 		}
 
-		sb.WriteString(fmt.Sprintf("| %s | %d | %d/%d | %.2f%% | %s | %.2f | %.2f | %.2f | %.2f | %.2f",
+		// 格式化首token延迟
+		firstTokenLatencyStr := "-"
+		if result.AvgFirstTokenLatency > 0 {
+			firstTokenLatencyStr = formatDuration(result.AvgFirstTokenLatency)
+		}
+
+		sb.WriteString(fmt.Sprintf("| %s | %d | %d | %d/%d | %.2f%% | %s | %s | %.2f | %.2f | %.2f | %.2f | %.2f | %.2f | %.2f",
 			result.ModelName,
 			result.ConcurrencyLevel,
+			result.ContextTargetTokens,
 			result.SuccessRequests, result.TotalRequests,
 			successRate,
 			formatDuration(result.AvgLatency),
+			firstTokenLatencyStr,
 			result.AvgInputTokens,
 			result.AvgOutputTokens,
 			result.AvgTotalTokens,
 			result.RequestsPerSec,
-			result.TokensPerSec))
+			result.TokensPerSec,
+			result.PrefillTokensPerSecAvg,
+			result.DecodeTokensPerSecAvg))
 
 		// 添加百分位数据
 		for _, p := range allPercentiles {
@@ -180,9 +190,12 @@ func (r *Reporter) generateCSVReport(results map[string]*engine.TestResult) (str
 
 	// 写入表头
 	headers := []string{
-		"模型名称", "并发度", "平均延迟(ms)",
+		"模型名称", "并发度", "上下文目标Token",
+		"平均延迟(ms)", "平均首Token延迟(ms)",
 		"平均输入Token", "平均输出Token", "平均总Token",
-		"每秒请求数(RPS)", "每秒Token数(TPS)", "成功率(%)",
+		"每秒请求数(RPS)", "每秒Token数(TPS)",
+		"Prefill TPS", "Decode TPS",
+		"成功率(%)",
 		"总请求数", "成功请求数", "失败请求数",
 	}
 
@@ -202,15 +215,25 @@ func (r *Reporter) generateCSVReport(results map[string]*engine.TestResult) (str
 			successRate = float64(result.SuccessRequests) / float64(result.TotalRequests) * 100
 		}
 
+		// 格式化首token延迟
+		firstTokenLatencyMs := "-"
+		if result.AvgFirstTokenLatency > 0 {
+			firstTokenLatencyMs = fmt.Sprintf("%d", result.AvgFirstTokenLatency.Milliseconds())
+		}
+
 		row := []string{
 			result.ModelName,
 			fmt.Sprintf("%d", result.ConcurrencyLevel),
+			fmt.Sprintf("%d", result.ContextTargetTokens),
 			fmt.Sprintf("%d", result.AvgLatency.Milliseconds()),
+			firstTokenLatencyMs,
 			fmt.Sprintf("%.2f", result.AvgInputTokens),
 			fmt.Sprintf("%.2f", result.AvgOutputTokens),
 			fmt.Sprintf("%.2f", result.AvgTotalTokens),
 			fmt.Sprintf("%.2f", result.RequestsPerSec),
 			fmt.Sprintf("%.2f", result.TokensPerSec),
+			fmt.Sprintf("%.2f", result.PrefillTokensPerSecAvg),
+			fmt.Sprintf("%.2f", result.DecodeTokensPerSecAvg),
 			fmt.Sprintf("%.2f", successRate),
 			fmt.Sprintf("%d", result.TotalRequests),
 			fmt.Sprintf("%d", result.SuccessRequests),
@@ -248,19 +271,24 @@ func (r *Reporter) generateJSONReport(results map[string]*engine.TestResult) (st
 	}
 
 	type ResultRecord struct {
-		ModelName        string              `json:"model_name"`
-		ConcurrencyLevel int                 `json:"concurrency"`
-		AvgLatencyMs     int64               `json:"avg_latency_ms"`
-		AvgInputTokens   float64             `json:"avg_input_tokens"`
-		AvgOutputTokens  float64             `json:"avg_output_tokens"`
-		AvgTotalTokens   float64             `json:"avg_total_tokens"`
-		RequestsPerSec   float64             `json:"requests_per_sec"`
-		TokensPerSec     float64             `json:"tokens_per_sec"`
-		SuccessRate      float64             `json:"success_rate"`
-		TotalRequests    int                 `json:"total_requests"`
-		SuccessRequests  int                 `json:"success_requests"`
-		FailedRequests   int                 `json:"failed_requests"`
-		Percentiles      []LatencyPercentile `json:"percentiles,omitempty"`
+		ModelName              string              `json:"model_name"`
+		ConcurrencyLevel       int                 `json:"concurrency"`
+		ContextTargetTokens    int                 `json:"context_target_tokens"`
+		AvgLatencyMs           int64               `json:"avg_latency_ms"`
+		AvgFirstTokenLatencyMs int64               `json:"avg_first_token_latency_ms,omitempty"`
+		AvgInputTokens         float64             `json:"avg_input_tokens"`
+		AvgOutputTokens        float64             `json:"avg_output_tokens"`
+		AvgTotalTokens         float64             `json:"avg_total_tokens"`
+		RequestsPerSec         float64             `json:"requests_per_sec"`
+		TokensPerSec           float64             `json:"tokens_per_sec"`
+		PrefillTokensPerSecAvg float64             `json:"prefill_tps"`
+		DecodeTokensPerSecAvg  float64             `json:"decode_tps"`
+		SuccessRate            float64             `json:"success_rate"`
+		TotalRequests          int                 `json:"total_requests"`
+		SuccessRequests        int                 `json:"success_requests"`
+		FailedRequests         int                 `json:"failed_requests"`
+		Percentiles            []LatencyPercentile `json:"percentiles,omitempty"`
+		FirstTokenPercentiles  []LatencyPercentile `json:"first_token_percentiles,omitempty"`
 	}
 
 	type Report struct {
@@ -310,20 +338,45 @@ func (r *Reporter) generateJSONReport(results map[string]*engine.TestResult) (st
 			})
 		}
 
+		// 创建首token延迟百分位数据
+		firstTokenPercentiles := make([]LatencyPercentile, 0)
+		if result.FirstTokenPercentiles != nil {
+			for p, latency := range result.FirstTokenPercentiles {
+				firstTokenPercentiles = append(firstTokenPercentiles, LatencyPercentile{
+					Percentile: p,
+					LatencyMs:  latency.Milliseconds(),
+				})
+			}
+
+			// 按百分位排序
+			sort.Slice(firstTokenPercentiles, func(i, j int) bool {
+				return firstTokenPercentiles[i].Percentile < firstTokenPercentiles[j].Percentile
+			})
+		}
+
 		resultRecord := &ResultRecord{
 			ModelName:        result.ModelName,
 			ConcurrencyLevel: result.ConcurrencyLevel,
+			ContextTargetTokens: result.ContextTargetTokens,
 			AvgLatencyMs:     result.AvgLatency.Milliseconds(),
 			AvgInputTokens:   result.AvgInputTokens,
 			AvgOutputTokens:  result.AvgOutputTokens,
 			AvgTotalTokens:   result.AvgTotalTokens,
 			RequestsPerSec:   result.RequestsPerSec,
 			TokensPerSec:     result.TokensPerSec,
+			PrefillTokensPerSecAvg: result.PrefillTokensPerSecAvg,
+			DecodeTokensPerSecAvg:  result.DecodeTokensPerSecAvg,
 			SuccessRate:      successRate,
 			TotalRequests:    result.TotalRequests,
 			SuccessRequests:  result.SuccessRequests,
 			FailedRequests:   result.FailedRequests,
 			Percentiles:      percentiles,
+			FirstTokenPercentiles: firstTokenPercentiles,
+		}
+
+		// 设置首token延迟（仅在有数据时）
+		if result.AvgFirstTokenLatency > 0 {
+			resultRecord.AvgFirstTokenLatencyMs = result.AvgFirstTokenLatency.Milliseconds()
 		}
 
 		report.TestResults = append(report.TestResults, resultRecord)

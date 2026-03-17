@@ -1,0 +1,364 @@
+{
+  "GPT-OSS-20b-1-1024ctx": {
+    "ModelName": "GPT-OSS-20b",
+    "ConcurrencyLevel": 1,
+    "ContextTargetTokens": 1024,
+    "TotalRequests": 2,
+    "SuccessRequests": 2,
+    "FailedRequests": 0,
+    "TotalDuration": 34651854200,
+    "AvgLatency": 17325689100,
+    "InputTokens": 1740,
+    "OutputTokens": 2945,
+    "TotalTokens": 4685,
+    "AvgInputTokens": 870,
+    "AvgOutputTokens": 1472.5,
+    "AvgTotalTokens": 2342.5,
+    "RequestsPerSec": 0.05771696915427977,
+    "TokensPerSec": 135.20200024390036,
+    "PrefillTokensPerSecAvg": 3440.091579455183,
+    "DecodeTokensPerSecAvg": 135.20200024390036,
+    "Errors": [],
+    "LatencyPercentiles": {
+      "50": 10528713200,
+      "90": 10528713200,
+      "95": 10528713200,
+      "99": 10528713200
+    },
+    "AllLatencies": [
+      24122665000,
+      10528713200
+    ],
+    "FirstTokenLatencies": [
+      538978700,
+      164814700
+    ],
+    "AvgFirstTokenLatency": 351896700,
+    "FirstTokenPercentiles": {
+      "50": 164814700,
+      "90": 164814700,
+      "95": 164814700,
+      "99": 164814700
+    }
+  },
+  "GPT-OSS-20b-1-128ctx": {
+    "ModelName": "GPT-OSS-20b",
+    "ConcurrencyLevel": 1,
+    "ContextTargetTokens": 128,
+    "TotalRequests": 2,
+    "SuccessRequests": 2,
+    "FailedRequests": 0,
+    "TotalDuration": 30456866300,
+    "AvgLatency": 15227932650,
+    "InputTokens": 479,
+    "OutputTokens": 2653,
+    "TotalTokens": 3132,
+    "AvgInputTokens": 239.5,
+    "AvgOutputTokens": 1326.5,
+    "AvgTotalTokens": 1566,
+    "RequestsPerSec": 0.06566663754241847,
+    "TokensPerSec": 102.83395439142733,
+    "PrefillTokensPerSecAvg": 2068.0972947186374,
+    "DecodeTokensPerSecAvg": 102.83395439142733,
+    "Errors": [],
+    "LatencyPercentiles": {
+      "50": 10584572000,
+      "90": 10584572000,
+      "95": 10584572000,
+      "99": 10584572000
+    },
+    "AllLatencies": [
+      19871293300,
+      10584572000
+    ],
+    "FirstTokenLatencies": [
+      586180300,
+      64130700
+    ],
+    "AvgFirstTokenLatency": 325155500,
+    "FirstTokenPercentiles": {
+      "50": 64130700,
+      "90": 64130700,
+      "95": 64130700,
+      "99": 64130700
+    }
+  },
+  "GPT-OSS-20b-1-256ctx": {
+    "ModelName": "GPT-OSS-20b",
+    "ConcurrencyLevel": 1,
+    "ContextTargetTokens": 256,
+    "TotalRequests": 2,
+    "SuccessRequests": 2,
+    "FailedRequests": 0,
+    "TotalDuration": 43013141400,
+    "AvgLatency": 21506116500,
+    "InputTokens": 628,
+    "OutputTokens": 3558,
+    "TotalTokens": 4186,
+    "AvgInputTokens": 314,
+    "AvgOutputTokens": 1779,
+    "AvgTotalTokens": 2093,
+    "RequestsPerSec": 0.04649741764734254,
+    "TokensPerSec": 97.31909513588793,
+    "PrefillTokensPerSecAvg": 2163.231966556485,
+    "DecodeTokensPerSecAvg": 97.31909513588793,
+    "Errors": [],
+    "LatencyPercentiles": {
+      "50": 20066798200,
+      "90": 20066798200,
+      "95": 20066798200,
+      "99": 20066798200
+    },
+    "AllLatencies": [
+      22945434800,
+      20066798200
+    ],
+    "FirstTokenLatencies": [
+      298596400,
+      96912700
+    ],
+    "AvgFirstTokenLatency": 197754550,
+    "FirstTokenPercentiles": {
+      "50": 96912700,
+      "90": 96912700,
+      "95": 96912700,
+      "99": 96912700
+    }
+  },
+  "GPT-OSS-20b-1-512ctx": {
+    "ModelName": "GPT-OSS-20b",
+    "ConcurrencyLevel": 1,
+    "ContextTargetTokens": 512,
+    "TotalRequests": 2,
+    "SuccessRequests": 2,
+    "FailedRequests": 0,
+    "TotalDuration": 44830141200,
+    "AvgLatency": 22415070600,
+    "InputTokens": 998,
+    "OutputTokens": 3810,
+    "TotalTokens": 4808,
+    "AvgInputTokens": 499,
+    "AvgOutputTokens": 1905,
+    "AvgTotalTokens": 2404,
+    "RequestsPerSec": 0.044612841861849856,
+    "TokensPerSec": 107.24927183588706,
+    "PrefillTokensPerSecAvg": 3190.631406299177,
+    "DecodeTokensPerSecAvg": 107.24927183588706,
+    "Errors": [],
+    "LatencyPercentiles": {
+      "50": 20228821500,
+      "90": 20228821500,
+      "95": 20228821500,
+      "99": 20228821500
+    },
+    "AllLatencies": [
+      24601319700,
+      20228821500
+    ],
+    "FirstTokenLatencies": [
+      361887200,
+      100041800
+    ],
+    "AvgFirstTokenLatency": 230964500,
+    "FirstTokenPercentiles": {
+      "50": 100041800,
+      "90": 100041800,
+      "95": 100041800,
+      "99": 100041800
+    }
+  },
+  "GPT-OSS-20b-5-1024ctx": {
+    "ModelName": "GPT-OSS-20b",
+    "ConcurrencyLevel": 5,
+    "ContextTargetTokens": 1024,
+    "TotalRequests": 6,
+    "SuccessRequests": 6,
+    "FailedRequests": 0,
+    "TotalDuration": 62182925700,
+    "AvgLatency": 35018145183,
+    "InputTokens": 5237,
+    "OutputTokens": 10498,
+    "TotalTokens": 15735,
+    "AvgInputTokens": 872.8333333333334,
+    "AvgOutputTokens": 1749.6666666666667,
+    "AvgTotalTokens": 2622.5,
+    "RequestsPerSec": 0.09648950949890735,
+    "TokensPerSec": 253.04373866088454,
+    "PrefillTokensPerSecAvg": 925.5508353539286,
+    "DecodeTokensPerSecAvg": 50.60874773217691,
+    "Errors": [],
+    "LatencyPercentiles": {
+      "50": 34131558800,
+      "90": 39488669300,
+      "95": 39488669300,
+      "99": 39488669300
+    },
+    "AllLatencies": [
+      28051366900,
+      33331754000,
+      35418441900,
+      39488669300,
+      39687080200,
+      34131558800
+    ],
+    "FirstTokenLatencies": [
+      1053015800,
+      1054227300,
+      1052236100,
+      420909700,
+      1053578700,
+      5565038200
+    ],
+    "AvgFirstTokenLatency": 1699834300,
+    "FirstTokenPercentiles": {
+      "50": 1053015800,
+      "90": 1054227300,
+      "95": 1054227300,
+      "99": 1054227300
+    }
+  },
+  "GPT-OSS-20b-5-128ctx": {
+    "ModelName": "GPT-OSS-20b",
+    "ConcurrencyLevel": 5,
+    "ContextTargetTokens": 128,
+    "TotalRequests": 5,
+    "SuccessRequests": 5,
+    "FailedRequests": 0,
+    "TotalDuration": 38341108500,
+    "AvgLatency": 35250105660,
+    "InputTokens": 1195,
+    "OutputTokens": 9315,
+    "TotalTokens": 10510,
+    "AvgInputTokens": 239,
+    "AvgOutputTokens": 1863,
+    "AvgTotalTokens": 2102,
+    "RequestsPerSec": 0.1304083318300513,
+    "TokensPerSec": 274.11831350676783,
+    "PrefillTokensPerSecAvg": 938.5245436010351,
+    "DecodeTokensPerSecAvg": 54.82366270135357,
+    "Errors": [],
+    "LatencyPercentiles": {
+      "50": 34715792000,
+      "90": 38328275900,
+      "95": 38328275900,
+      "99": 38328275900
+    },
+    "AllLatencies": [
+      30167183300,
+      34698168600,
+      34715792000,
+      38328275900,
+      38341108500
+    ],
+    "FirstTokenLatencies": [
+      329034700,
+      329537200,
+      328097300,
+      134289700,
+      328097300
+    ],
+    "AvgFirstTokenLatency": 289811240,
+    "FirstTokenPercentiles": {
+      "50": 328097300,
+      "90": 329034700,
+      "95": 329034700,
+      "99": 329034700
+    }
+  },
+  "GPT-OSS-20b-5-256ctx": {
+    "ModelName": "GPT-OSS-20b",
+    "ConcurrencyLevel": 5,
+    "ContextTargetTokens": 256,
+    "TotalRequests": 5,
+    "SuccessRequests": 5,
+    "FailedRequests": 0,
+    "TotalDuration": 44465677800,
+    "AvgLatency": 40762466860,
+    "InputTokens": 1606,
+    "OutputTokens": 9705,
+    "TotalTokens": 11311,
+    "AvgInputTokens": 321.2,
+    "AvgOutputTokens": 1941,
+    "AvgTotalTokens": 2262.2,
+    "RequestsPerSec": 0.11244627873411163,
+    "TokensPerSec": 254.37597175230735,
+    "PrefillTokensPerSecAvg": 527.3123879037765,
+    "DecodeTokensPerSecAvg": 50.87519435046147,
+    "Errors": [],
+    "LatencyPercentiles": {
+      "50": 42368923300,
+      "90": 42370151100,
+      "95": 42370151100,
+      "99": 42370151100
+    },
+    "AllLatencies": [
+      35460939500,
+      39146642600,
+      42368923300,
+      42370151100,
+      44465677800
+    ],
+    "FirstTokenLatencies": [
+      436892300,
+      677416900,
+      677961700,
+      677961700,
+      677416900
+    ],
+    "AvgFirstTokenLatency": 629529900,
+    "FirstTokenPercentiles": {
+      "50": 677416900,
+      "90": 677961700,
+      "95": 677961700,
+      "99": 677961700
+    }
+  },
+  "GPT-OSS-20b-5-512ctx": {
+    "ModelName": "GPT-OSS-20b",
+    "ConcurrencyLevel": 5,
+    "ContextTargetTokens": 512,
+    "TotalRequests": 5,
+    "SuccessRequests": 5,
+    "FailedRequests": 0,
+    "TotalDuration": 47271461900,
+    "AvgLatency": 41609811140,
+    "InputTokens": 2501,
+    "OutputTokens": 9668,
+    "TotalTokens": 12169,
+    "AvgInputTokens": 500.2,
+    "AvgOutputTokens": 1933.6,
+    "AvgTotalTokens": 2433.8,
+    "RequestsPerSec": 0.10577206202290097,
+    "TokensPerSec": 257.42804455133637,
+    "PrefillTokensPerSecAvg": 983.2427191494796,
+    "DecodeTokensPerSecAvg": 51.485608910267274,
+    "Errors": [],
+    "LatencyPercentiles": {
+      "50": 43096218900,
+      "90": 43096218900,
+      "95": 43096218900,
+      "99": 43096218900
+    },
+    "AllLatencies": [
+      31634944900,
+      42950928800,
+      43096218900,
+      43096218900,
+      47270744200
+    ],
+    "FirstTokenLatencies": [
+      648249800,
+      275394500,
+      647626400,
+      648249800,
+      649508300
+    ],
+    "AvgFirstTokenLatency": 573805760,
+    "FirstTokenPercentiles": {
+      "50": 648249800,
+      "90": 648249800,
+      "95": 648249800,
+      "99": 648249800
+    }
+  }
+}
