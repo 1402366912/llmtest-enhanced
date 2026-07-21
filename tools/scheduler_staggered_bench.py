@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Benchmark staggered arrivals and the 1Cat long-prefill threshold boundary."""
+"""Benchmark staggered arrivals, fair prefills, and threshold boundaries."""
 
 import argparse
 import json
@@ -235,6 +235,58 @@ def staggered_suite(args: argparse.Namespace, nonce: str) -> dict[str, Any]:
     }
 
 
+def fairness_suite(args: argparse.Namespace, nonce: str) -> dict[str, Any]:
+    """Submit equal exact-token prefills at fixed staggered arrival times."""
+    tokenize_url = args.url.rsplit("/v1/chat/completions", 1)[0] + "/tokenize"
+    messages = [
+        exact_token_messages(
+            tokenize_url,
+            args.model,
+            args.fairness_prompt_tokens,
+            f"{nonce}-fairness-{index + 1}",
+        )
+        for index in range(args.request_count)
+    ]
+    suite_zero = time.perf_counter()
+    results: list[dict[str, Any] | None] = [None] * args.request_count
+    threads = []
+
+    def worker(index: int) -> None:
+        offset = index * args.stagger_delay
+        remaining = suite_zero + offset - time.perf_counter()
+        if remaining > 0:
+            time.sleep(remaining)
+        results[index] = stream_request(
+            args.url,
+            args.model,
+            messages[index],
+            args.fairness_output,
+            suite_zero,
+            f"fairness-{args.fairness_prompt_tokens}-{index + 1}",
+            offset,
+            args.fairness_output > 1,
+        )
+
+    for index in range(args.request_count):
+        thread = threading.Thread(target=worker, args=(index,), daemon=False)
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
+
+    return {
+        "mode": "fairness",
+        "policy": {
+            "request_count": args.request_count,
+            "stagger_delay_s": args.stagger_delay,
+            "exact_prompt_tokens": args.fairness_prompt_tokens,
+            "output_tokens": args.fairness_output,
+        },
+        "requests": results,
+        "suite_wall_s": round(time.perf_counter() - suite_zero, 3),
+    }
+
+
 def boundary_suite(args: argparse.Namespace, nonce: str) -> dict[str, Any]:
     tokenize_url = args.url.rsplit("/v1/chat/completions", 1)[0] + "/tokenize"
     targets = [int(value) for value in args.boundary_targets.split(",")]
@@ -308,7 +360,9 @@ def boundary_suite(args: argparse.Namespace, nonce: str) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=("staggered", "boundary"), required=True)
+    parser.add_argument(
+        "--mode", choices=("staggered", "fairness", "boundary"), required=True
+    )
     parser.add_argument(
         "--url", default="http://127.0.0.1:60015/v1/chat/completions"
     )
@@ -318,6 +372,8 @@ def main() -> None:
     parser.add_argument("--short-output", type=int, default=128)
     parser.add_argument("--request-count", type=int, default=8)
     parser.add_argument("--stagger-delay", type=float, default=3.0)
+    parser.add_argument("--fairness-prompt-tokens", type=int, default=10000)
+    parser.add_argument("--fairness-output", type=int, default=1)
     parser.add_argument("--long-threshold", type=int, default=7840)
     parser.add_argument("--boundary-targets", default="7839,7840,7841")
     parser.add_argument("--boundary-output", type=int, default=32)
@@ -325,11 +381,12 @@ def main() -> None:
     parser.add_argument("--output-json", required=True)
     args = parser.parse_args()
     nonce = f"{time.time_ns():x}"
-    result = (
-        staggered_suite(args, nonce)
-        if args.mode == "staggered"
-        else boundary_suite(args, nonce)
-    )
+    if args.mode == "staggered":
+        result = staggered_suite(args, nonce)
+    elif args.mode == "fairness":
+        result = fairness_suite(args, nonce)
+    else:
+        result = boundary_suite(args, nonce)
     result["created_at_unix"] = time.time()
     rendered = json.dumps(result, ensure_ascii=False, indent=2)
     Path(args.output_json).write_text(rendered + "\n", encoding="utf-8")
