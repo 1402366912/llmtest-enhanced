@@ -27,5 +27,13 @@ config.yaml
 # 日志文件
 *.log
 
+# 本地基准配置、运行结果与 Python 缓存
+config.local-*.yaml
+/results/
+/llm_test_report_*.json
+/manual_*.json
+__pycache__/
+*.py[cod]
+
 # 编译输出
 /llm-test 

@@ -111,6 +111,42 @@ make help       # 查看帮助
 
 ## 使用方式
 
+### HTML 等价的隔离 Prefill/Decode 基准
+
+主测试引擎用于持续压测，其 `Prefill TPS` 包含请求排队和并发争用，不能与单请求
+内核速度直接比较。需要复现 `本地大模型推理速度测试工具v2.2.html` 的单请求口径时，
+使用 `tools/prefill_bench.py`：
+
+```bash
+python3 -m pip install requests
+python3 tools/prefill_bench.py \
+  --url http://127.0.0.1:60015 \
+  --model Qwen3.6-27B-AWQ \
+  --lengths 10000,50000,90000,130000 \
+  --output-length 128 \
+  --warmup-runs 1 \
+  --runs 1 \
+  --output-json isolated-prefill.json
+```
+
+也可以通过 Makefile 调用：
+
+```bash
+make prefill-bench PREFILL_ARGS="--url http://127.0.0.1:60015 --lengths 10000,50000"
+```
+
+计量规则：
+
+- 整组只在第一个长度执行一次 warmup，不会每个档位重复预热。
+- TTFT 从发起请求计到第一个非空 reasoning/content token。
+- Prefill 使用 API `usage.prompt_tokens / TTFT`，不使用本地估算 token 数。
+- Decode 使用 API 输出 token 数和首 token 后的流式耗时。
+- 每次启动自动在提示词最前面加入唯一 nonce，避免 vLLM Prefix Cache 把 Prefill 虚高。
+- 默认每档只跑一次；`--runs` 大于 1 时才报告中位数。
+
+该工具报告的是隔离单请求性能；主引擎报告的是负载下性能，两者应分别保留，
+不要放在同一排行榜列中比较。
+
 ### Web 界面使用
 
 详细的 Web 界面使用教程请参阅 [README_WEB.md](README_WEB.md)
