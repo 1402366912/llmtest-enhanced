@@ -65,6 +65,10 @@ class Result:
     ended_at: float
 
 
+class StreamResponseError(RuntimeError):
+    """Raised when an HTTP-200 SSE stream contains an engine error."""
+
+
 def normalize_url(url: str) -> str:
     url = url.rstrip("/")
     if url.endswith("/chat/completions"):
@@ -115,6 +119,10 @@ def run_request(
                 event = json.loads(line)
             except json.JSONDecodeError:
                 continue
+            if event.get("error"):
+                raise StreamResponseError(
+                    f"{domain}: server stream error: {event['error']}"
+                )
             usage = event.get("usage") or usage
             choices = event.get("choices") or []
             if choices:
@@ -125,7 +133,11 @@ def run_request(
                     first = time.perf_counter()
         end = time.perf_counter()
     first = first or end
-    output_tokens = int(usage.get("completion_tokens") or max_tokens)
+    if not usage or "completion_tokens" not in usage:
+        raise StreamResponseError(
+            f"{domain}: stream ended without final token usage (engine likely died)"
+        )
+    output_tokens = int(usage["completion_tokens"])
     prompt_tokens = int(usage.get("prompt_tokens") or 0)
     decode_s = max(end - first, 0.001)
     token_intervals = max(output_tokens - 1, 1)
@@ -194,6 +206,25 @@ def main() -> None:
     concurrency_levels = [int(value) for value in args.concurrency.split(",")]
 
     metrics_before = fetch_spec_metrics(args.url)
+    output = Path(args.output_json)
+    output.parent.mkdir(parents=True, exist_ok=True)
+
+    def checkpoint(natural_results: list[Result], stress: dict) -> None:
+        document = {
+            "schema": "1cat-llmtest.mtp-decode.v1",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "label": args.label,
+            "model": args.model,
+            "url": url,
+            "domain_max_tokens": args.domain_max_tokens,
+            "stress_max_tokens": args.stress_max_tokens,
+            "natural_domains": summarize(natural_results),
+            "concurrency": stress,
+            "spec_metrics_before": metrics_before,
+            "spec_metrics_after": fetch_spec_metrics(args.url),
+        }
+        output.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n")
+
     natural_results = [
         run_request(
             url=url,
@@ -207,6 +238,7 @@ def main() -> None:
     ]
 
     stress = {}
+    checkpoint(natural_results, stress)
     for concurrency in concurrency_levels:
         barrier = threading.Barrier(concurrency)
         with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as pool:
@@ -226,23 +258,9 @@ def main() -> None:
                     )
                 )
             stress[str(concurrency)] = summarize([future.result() for future in futures])
+        checkpoint(natural_results, stress)
 
-    document = {
-        "schema": "1cat-llmtest.mtp-decode.v1",
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "label": args.label,
-        "model": args.model,
-        "url": url,
-        "domain_max_tokens": args.domain_max_tokens,
-        "stress_max_tokens": args.stress_max_tokens,
-        "natural_domains": summarize(natural_results),
-        "concurrency": stress,
-        "spec_metrics_before": metrics_before,
-        "spec_metrics_after": fetch_spec_metrics(args.url),
-    }
-    output = Path(args.output_json)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n")
+    document = json.loads(output.read_text())
     print(json.dumps(document, ensure_ascii=False, indent=2))
 
 
