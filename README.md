@@ -1,11 +1,11 @@
-# LLM-Test: 大语言模型 API 性能测试工具
+# llmtest-enhanced: 大语言模型 API 性能测试工具
 
 [![Go版本](https://img.shields.io/badge/Go-1.18+-blue.svg)](https://golang.org/doc/devel/release.html)
 [![许可证](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-LLM-Test 是一个功能强大的大语言模型 API 性能测试工具，支持多种模型、可配置的并发度测试、详细的性能报告和可视化 Web 界面。
+llmtest-enhanced 提供多模型 API 性能测试、并发压测、隔离的 Prefill/Decode/MTP 基准、调度竞争测试、性能报告和 Web 界面。
 
-> **声明**：本代码仓库中 99% 以上的代码是由 Cursor（基于 Claude 3.7 Sonnet）生成。
+本仓库保留所使用的 MIT 授权代码及原版权声明；新增的隔离基准与集成功能由本仓库维护。
 
 ## 目录
 
@@ -89,8 +89,8 @@ go build -o llm-test
 
 ```bash
 # 克隆仓库
-git clone https://github.com/lemonlinger/llm-test.git
-cd llm-test
+git clone https://github.com/1402366912/llmtest-enhanced.git
+cd llmtest-enhanced
 
 # 方式一：构建 Web 界面版本（推荐）
 ./build.sh      # Linux/macOS
@@ -458,7 +458,7 @@ models:
 
 欢迎贡献代码、报告问题或提出改进建议。请遵循以下步骤：
 
-1. Fork 项目
+1. 将仓库复制到自己的账号
 2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
 3. 提交更改 (`git commit -m 'Add some amazing feature'`)
 4. 推送到分支 (`git push origin feature/amazing-feature`)
@@ -471,5 +471,5 @@ models:
 ## 相关链接
 
 - **Web 界面文档**: [README_WEB.md](README_WEB.md)
-- **GitHub 仓库**: https://github.com/lemonlinger/llm-test
-- **问题反馈**: https://github.com/lemonlinger/llm-test/issues
+- **GitHub 仓库**: https://github.com/1402366912/llmtest-enhanced
+- **问题反馈**: https://github.com/1402366912/llmtest-enhanced/issues

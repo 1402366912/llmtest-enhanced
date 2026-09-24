@@ -384,7 +384,7 @@ models:
 
 欢迎贡献代码、报告问题或提出改进建议：
 
-1. Fork 项目
+1. 将仓库复制到自己的账号
 2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
 3. 提交更改 (`git commit -m 'Add some amazing feature'`)
 4. 推送到分支 (`git push origin feature/amazing-feature`)
@@ -398,7 +398,7 @@ models:
 
 - [主文档](README.md)
 - [配置文件示例](config.yaml)
-- [GitHub 仓库](https://github.com/lemonlinger/llm-test)
+- [GitHub 仓库](https://github.com/1402366912/llmtest-enhanced)
 
 
 ## 单请求基准（v2.2）
