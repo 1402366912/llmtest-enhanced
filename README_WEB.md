@@ -399,3 +399,12 @@ models:
 - [主文档](README.md)
 - [配置文件示例](config.yaml)
 - [GitHub 仓库](https://github.com/lemonlinger/llm-test)
+
+
+## 单请求基准（v2.2）
+
+Web 界面的“单请求基准”页完整内嵌修复过 `delta.reasoning` 计时的《本地大模型推理速度测试工具 v2.2》，可做输入长度扫描、并发测试、图表、浏览器历史与导出。选择 1Cat 模型并点“使用当前模型配置”，会填入聊天接口、实际模型 ID 和 API Key。若模型地址配置为 `localhost`，页面会改用当前浏览器访问的服务器主机名，端口保持不变；浏览器仍需能连通模型端口，且模型服务允许跨域请求。也可以在工具内手动填写其他地址。
+
+单请求工具在浏览器中直接计时，历史保存在浏览器 localStorage；主测试页的持续压测由 Go 后端执行，结果保存在服务端。两种结果使用不同负载与计时口径，比较前应核对输入 token 数、TTFT、输出 token 数、并发度和前缀缓存命中情况。
+
+单请求工具原作者项目：[gengchaogit/llm_speedtest](https://github.com/gengchaogit/llm_speedtest)。集成保留了 v2.2 的完整 HTML 功能，修复版本来源为本机已有的 `本地大模型推理速度测试工具v2.2.html`。

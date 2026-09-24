@@ -19,6 +19,7 @@ import ResultsPanel from '@/components/ResultsPanel.vue'
 import HistoryPanel from '@/components/HistoryPanel.vue'
 import LeaderboardPanel from '@/components/LeaderboardPanel.vue'
 import AnalyticsPanel from '@/components/AnalyticsPanel.vue'
+import IsolatedBenchmark from '@/components/IsolatedBenchmark.vue'
 
 const store = useAppStore()
 const message = useMessage()
@@ -546,6 +547,16 @@ import { h } from 'vue'
               <TestControl />
             </NTabPane>
             
+            <NTabPane name="isolated" tab="单请求基准">
+              <template #tab>
+                <div class="tab-label">
+                  <NIcon size="16"><BarChartOutline /></NIcon>
+                  <span>单请求基准</span>
+                </div>
+              </template>
+              <IsolatedBenchmark />
+            </NTabPane>
+
             <NTabPane name="results" tab="结果">
               <template #tab>
                 <div class="tab-label">
